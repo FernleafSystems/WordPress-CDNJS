@@ -45,7 +45,7 @@ class ICWP_Cdnjs_Main extends Worpit_Cdnjs_Base_Plugin {
 	const InputPrefix				= 'worpit_cdnjs_';
 	const OptionPrefix				= 'worpit_cdnjs_'; //ALL database options use this as the prefix.
 
-	static public $VERSION			= '1.3.1'; //SHOULD BE UPDATED UPON EACH NEW RELEASE
+	static public $VERSION			= '1.3.2'; //SHOULD BE UPDATED UPON EACH NEW RELEASE
 	
 	static public $aWP_MAPPINGS;
 	static public $sALL_PACKAGES_URL = 'http://api.cdnjs.com/libraries?fields=name,version,description,filename';
