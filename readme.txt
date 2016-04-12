@@ -3,14 +3,14 @@ Contributors: paultgoodchild, dlgoodchild
 Donate link: http://www.icontrolwp.com/
 Tags: CDN, CDNJS, CSS, JS, CloudFlare
 Requires at least: 3.5.0
-Tested up to: 4.0
+Tested up to: 4.5
 Stable tag: 1.3.1
 
-CDNJS plugin allows you to include/replace Javascript and CSS libraries used on your WordPress site and serve them using <a href="">CDNJS.com</a>
+Replace Javascript and CSS libraries on your WordPress site with CloudFlare's FREE CDN
 
 == Description ==
 
-What is CDNJS?
+= What is CDNJS? =
 
 This is best described in [this article on Cloudflare.com](http://blog.cloudflare.com/cdnjs-the-fastest-javascript-repo-on-the-web).
 
@@ -18,7 +18,7 @@ CDNJS is a freely available CDN for common Javascript and CSS libraries.
 
 This plugin simply lets you use them more easily on your WordPress site.
 
-This plugin is produced and supported by [iControlWP: Multiple WordPress Management](http://www.icontrolwp.com/?src=wporg-cdnjs).
+This plugin is produced and supported by [iControlWP: Multiple WordPress Management](http://icwp.io/6y).
 
 
 == Frequently Asked Questions ==

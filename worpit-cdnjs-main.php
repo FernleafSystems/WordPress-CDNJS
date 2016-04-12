@@ -1,15 +1,15 @@
 <?php
 /*
 Plugin Name: CDNJS for WordPress
-Plugin URI: http://www.icontrolwp.com/
+Plugin URI: http://icwp.io/6x
 Description: Allows you to easily include Javascript and other resources from CDNJS.
-Version: 1.3.1
+Version: 1.3.2
 Author: iControlWP
-Author URI: http://www.icontrolwp.com/
+Author URI: http://icwp.io/6x
 */
 
 /**
- * Copyright (c) 2014 iControlWP <support@icontrolwp.com>
+ * Copyright (c) 2016 iControlWP <support@icontrolwp.com>
  * All rights reserved.
  *
  * "CDNJS for WordPress" is
@@ -279,7 +279,7 @@ class ICWP_Cdnjs_Main extends Worpit_Cdnjs_Base_Plugin {
 			),
 			self::$sALL_PACKAGES_URL
 		);
-		$aResponse = wp_remote_get( $sQuery );
+		$aResponse = wp_remote_get( $sQuery ); // may generate warning, see: http://wordpress-hackers.1065353.n5.nabble.com/gzinflate-Warning-on-transient-expiration-td40201.html
 		if ( is_wp_error( $aResponse ) || !isset( $aResponse['response']['code'] ) || $aResponse['response']['code'] != 200 || empty( $aResponse['body'] ) ) {
 			return false;
 		}

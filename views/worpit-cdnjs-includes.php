@@ -21,7 +21,10 @@ include_once( dirname(__FILE__).WORPIT_DS.'widgets'.WORPIT_DS.'widgets.php' );
 					printAllPluginOptionsForm( $worpit_aAllOptions, $worpit_var_prefix, 1 );
 				?>
 				<div class="form-actions">
-					<input type="hidden" name="<?php echo $worpit_var_prefix; ?>all_options_input" value="<?php echo $worpit_all_options_input; ?>" />
+					<input type="hidden"
+						   name="<?php echo $worpit_var_prefix; ?>all_options_input"
+						   value="<?php echo isset( $worpit_all_options_input ) ? $worpit_all_options_input : ''; ?>"
+					/>
 					<input type="hidden" name="worpit_plugin_form_submit" value="Y" />
 					<button type="submit" class="btn btn-primary" name="submit"><?php _worpit_cdnjs_e( 'Save All Settings'); ?></button>
 					</div>

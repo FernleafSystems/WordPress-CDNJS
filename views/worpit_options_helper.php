@@ -63,7 +63,8 @@ function printAllPluginOptionsForm( $inaAllPluginOptions, $insVarPrefix = '', $i
 function getPluginOptionSpan( $inaOption, $iSpanSize, $insVarPrefix = '' ) {
 	
 	list( $sOptionKey, $sOptionSaved, $sOptionDefault, $mOptionType, $sOptionHumanName, $sOptionTitle, $sOptionHelpText ) = $inaOption;
-	
+
+	$sHelpSection = '';
 	if ( $sOptionKey == 'spacer' ) {
 		$sHtml = '
 			<div class="span'.$iSpanSize.'">
