@@ -1,10 +1,10 @@
 === Plugin Name ===
 Contributors: paultgoodchild, dlgoodchild
-Donate link: http://www.icontrolwp.com/
+Donate link: https://www.icontrolwp.com/
 Tags: CDN, CDNJS, CSS, JS, CloudFlare
 Requires at least: 3.5.0
-Tested up to: 4.5
-Stable tag: 1.3.2
+Tested up to: 4.8
+Stable tag: 1.3.3
 
 Replace Javascript and CSS libraries on your WordPress site with CloudFlare's FREE CDN
 
@@ -70,6 +70,12 @@ this each time you load your site.
 
 = TODO =
 * Improve the UI for search and filtering.
+
+= 1.3.3 =
+
+* UPDATE:	Some code improvements, styling etc.
+* UPDATE:	Compatibility with WordPress 4.7
+* UPDATE:	Compatibility with PHP 7
 
 = 1.3.2 =
 
