@@ -1,15 +1,15 @@
 <?php
 /*
-Plugin Name: CDNJS for WordPress
-Plugin URI: http://icwp.io/6x
-Description: Allows you to easily include Javascript and other resources from CDNJS.
-Version: 1.3.2
-Author: iControlWP
-Author URI: http://icwp.io/6x
+ * Plugin Name: CDNJS for WordPress
+ * Plugin URI: http://icwp.io/6x
+ * Description: Allows you to easily include Javascript and other resources from CDNJS.
+ * Version: 1.3.2
+ * Author: iControlWP
+ * Author URI: http://icwp.io/6x
 */
 
 /**
- * Copyright (c) 2016 iControlWP <support@icontrolwp.com>
+ * Copyright (c) 2017 iControlWP <support@icontrolwp.com>
  * All rights reserved.
  *
  * "CDNJS for WordPress" is
@@ -44,17 +44,14 @@ class ICWP_Cdnjs_Main extends Worpit_Cdnjs_Base_Plugin {
 	
 	const InputPrefix				= 'worpit_cdnjs_';
 	const OptionPrefix				= 'worpit_cdnjs_'; //ALL database options use this as the prefix.
+	const CDNJS_URL = 'http://api.cdnjs.com/libraries';
 
 	static public $VERSION			= '1.3.2'; //SHOULD BE UPDATED UPON EACH NEW RELEASE
 	
 	static public $aWP_MAPPINGS;
-	static public $sALL_PACKAGES_URL = 'http://api.cdnjs.com/libraries?fields=name,version,description,filename';
-//	static public $sALL_PACKAGES_URL = 'http://cdnjs.com/packages.json';
-	static public $oPACKAGES_CONTENT;
-	
-	protected $m_aAllPluginOptions;
-	protected $m_aPluginOptions_CdnJs_JsIncludes;
-	protected $m_aPluginOptions_CdnJs_CssIncludes;
+
+	protected $aPluginOptions_CdnJs_JsIncludes;
+	protected $aPluginOptions_CdnJs_CssIncludes;
 	protected $m_aPluginOptions_GeneralSection;
 	
 	public function __construct() {
@@ -70,7 +67,7 @@ class ICWP_Cdnjs_Main extends Worpit_Cdnjs_Base_Plugin {
 		self::$PLUGIN_URL	= plugins_url( '/', __FILE__ ) ; //this seems to use SSL more reliably than WP_PLUGIN_URL
 		self::$OPTION_PREFIX = self::OptionPrefix;
 		
-		$this->m_sPluginSlug = 'cdnjs';
+		$this->sPluginSlug = 'cdnjs';
 		
 		if ( !is_admin() ) {
 			add_action( 'init', array( $this, 'enqueueAll' ), 999 );
@@ -80,10 +77,10 @@ class ICWP_Cdnjs_Main extends Worpit_Cdnjs_Base_Plugin {
 	
 	protected function initPluginOptions() {
 		
-		$this->m_aPluginOptions_CdnJs_JsIncludes = array(
+		$this->aPluginOptions_CdnJs_JsIncludes = array(
 			'section_title' => 'Choose Common Javascript Libraries'
 		);
-		$this->m_aPluginOptions_CdnJs_CssIncludes = array(
+		$this->aPluginOptions_CdnJs_CssIncludes = array(
 			'section_title' => 'Choose Common CSS Libraries'
 		);
 
@@ -91,7 +88,7 @@ class ICWP_Cdnjs_Main extends Worpit_Cdnjs_Base_Plugin {
 			$this->readAllPackages();
 		}
 		else {
-			$this->m_aPluginOptions_CdnJs_JsIncludes['section_options'] = array(
+			$this->aPluginOptions_CdnJs_JsIncludes[ 'section_options'] = array(
 				array(	'cufon',				'',		'N', 	'checkbox',	'Cufón', 'Include the latest Cufón JS library', "" ),
 				array(	'firebug-lite',			'',		'N', 	'checkbox',	'Firebug Lite', 'Include the Firebug Lite JS library', "" ),
 				array(	'jquery',				'',		'N', 	'checkbox',	'JQuery', 'Include the latest JQuery library', "Will replace your WordPress JQuery library." ),
@@ -103,7 +100,7 @@ class ICWP_Cdnjs_Main extends Worpit_Cdnjs_Base_Plugin {
 				array(	'prettify',				'',		'N', 	'checkbox',	'Prettify', 'Include the latest Prettify library', "" ),
 				array(	'twitter-bootstrap',	'',		'N', 	'checkbox',	'Twitter Bootstrap', 'Include the latest Twitter Bootstrap JS library', "Remember to include the CSS below" ),
 			);
-			$this->m_aPluginOptions_CdnJs_CssIncludes['section_options'] = array(
+			$this->aPluginOptions_CdnJs_CssIncludes[ 'section_options'] = array(
 				array(	'960gs',					'',	'N', 	'checkbox',	'960gs', 'Include the latest 960gs CSS library', "" ),
 				array(	'normalize',				'',	'N', 	'checkbox',	'Normalize', 'Include the latest Normalize library', "" ),
 				array(	'font-awesome',				'',	'N', 	'checkbox',	'Font Awesome', 'Include the latest Font Awesome library', "" ),
@@ -115,10 +112,10 @@ class ICWP_Cdnjs_Main extends Worpit_Cdnjs_Base_Plugin {
 			
 		}//if-else
 		
-		$this->m_aAllPluginOptions = array(
-			&$this->m_aPluginOptions_CdnJs_CssIncludes,
-			&$this->m_aPluginOptions_CdnJs_JsIncludes,
-//			&$this->m_aPluginOptions_GeneralSection
+		$this->aAllPluginOptions = array(
+			&$this->aPluginOptions_CdnJs_CssIncludes,
+			&$this->aPluginOptions_CdnJs_JsIncludes,
+			//			&$this->m_aPluginOptions_GeneralSection
 		);
 		
 		/**
@@ -130,17 +127,8 @@ class ICWP_Cdnjs_Main extends Worpit_Cdnjs_Base_Plugin {
 		);
 		
 		return true;
-		
-	}//initPluginOptions
+	}
 
-	public function onWpInit() {
-		parent::onWpInit();
-
-//		add_action( 'wp_enqueue_scripts', array( $this, 'onWpPrintStyles' ) );
-//		add_action( 'wp_enqueue_scripts', array( $this, 'onWpEnqueueScripts' ) );
-		
-	}//onWpInit
-	
 	public function onWpAdminInit() {
 		parent::onWpAdminInit();
 		
@@ -181,7 +169,7 @@ class ICWP_Cdnjs_Main extends Worpit_Cdnjs_Base_Plugin {
 
 		//Someone clicked the button to acknowledge the update
 		if ( isset( $_POST['hlt_hide_update_notice'] ) && isset( $_POST['hlt_user_id'] ) ) {
-			$result = update_user_meta( $_POST['hlt_user_id'], self::OptionPrefix.'current_version', self::$VERSION );
+			update_user_meta( $_POST['hlt_user_id'], self::OptionPrefix.'current_version', self::$VERSION );
 			header( "Location: admin.php?page=".$this->getFullParentMenuId() );
 		}
 		
@@ -255,8 +243,8 @@ class ICWP_Cdnjs_Main extends Worpit_Cdnjs_Base_Plugin {
 
 		//Specify what set of options are available for this page
 		$aAvailableOptions = array(
-			&$this->m_aPluginOptions_CdnJs_CssIncludes,
-			&$this->m_aPluginOptions_CdnJs_JsIncludes
+			&$this->aPluginOptions_CdnJs_CssIncludes,
+			&$this->aPluginOptions_CdnJs_JsIncludes
 		);
 		
 		$aData = array(
@@ -275,38 +263,37 @@ class ICWP_Cdnjs_Main extends Worpit_Cdnjs_Base_Plugin {
 
 		$sQuery = add_query_arg(
 			array(
-				'fields' => 'version,description,filename'
+				'fields' => 'name,version,description,filename'
 			),
-			self::$sALL_PACKAGES_URL
+			self::CDNJS_URL
 		);
 		$aResponse = wp_remote_get( $sQuery ); // may generate warning, see: http://wordpress-hackers.1065353.n5.nabble.com/gzinflate-Warning-on-transient-expiration-td40201.html
 		if ( is_wp_error( $aResponse ) || !isset( $aResponse['response']['code'] ) || $aResponse['response']['code'] != 200 || empty( $aResponse['body'] ) ) {
-			return false;
+			return;
 		}
 		$oAllPackages = json_decode( $aResponse['body'] );
 		$aPackages = $oAllPackages->results;
 
-		$this->m_aPluginOptions_CdnJs_JsIncludes['section_options'] = array();
-		$this->m_aPluginOptions_CdnJs_CssIncludes['section_options'] = array();
+		$this->aPluginOptions_CdnJs_JsIncludes[ 'section_options'] = array();
+		$this->aPluginOptions_CdnJs_CssIncludes[ 'section_options'] = array();
+
+		$aAcceptableExtensions = array( 'css', 'js' );
 		foreach( $aPackages as $oPackage ) {
-			
-			if ( substr($oPackage->filename, -3) == '.js'  ) {
-				
-				$this->m_aPluginOptions_CdnJs_JsIncludes['section_options'][] = array(
+
+			$aFileNameParts = explode( '.', $oPackage->filename );
+			$sExtension = strtolower( $aFileNameParts[ count( $aFileNameParts ) - 1 ] );
+
+			if ( in_array( $sExtension, $aAcceptableExtensions ) ) {
+				$sArrayToAddTo = sprintf( 'aPluginOptions_CdnJs_%sIncludes', ucfirst( $sExtension ) );
+				$this->{$sArrayToAddTo}[ 'section_options' ][] = array(
 					str_replace( '.', '_DOT_', $oPackage->name.'_SEP_'.$oPackage->version.'_SEP_'.$oPackage->filename ),
 					'', 'N', 'checkbox',
-					$oPackage->name,
-					'Add the '.$oPackage->name.' JS Library',
-					esc_attr( $oPackage->description ),
-					$oPackage->version
-				);
-			}
-			elseif ( substr($oPackage->filename, -4) == '.css' ) {
-				$this->m_aPluginOptions_CdnJs_CssIncludes['section_options'][] = array(
-					str_replace( '.', '_DOT_', $oPackage->name.'_SEP_'.$oPackage->version.'_SEP_'.$oPackage->filename ),
-					'', 'N', 'checkbox',
-					$oPackage->name,
-					'Add the '.$oPackage->name.' CSS Library',
+					sprintf( '%s<br /><small>(v%s)</small>', $oPackage->name, $oPackage->version ),
+					sprintf(
+						'Add the <strong>%s</strong> %s Library',
+						$oPackage->name,
+						strtoupper( $sExtension )
+					),
 					esc_attr( $oPackage->description ),
 					$oPackage->version
 				);
@@ -314,8 +301,8 @@ class ICWP_Cdnjs_Main extends Worpit_Cdnjs_Base_Plugin {
 		}
 		
 		//Not entirely necessary, but makes the interface a little better
-		sort( $this->m_aPluginOptions_CdnJs_CssIncludes['section_options'] );
-		sort( $this->m_aPluginOptions_CdnJs_JsIncludes['section_options'] );
+		sort( $this->aPluginOptions_CdnJs_CssIncludes[ 'section_options'] );
+		sort( $this->aPluginOptions_CdnJs_JsIncludes[ 'section_options'] );
 	}
 	
 	protected function handlePluginFormSubmit() {
@@ -417,31 +404,17 @@ class ICWP_Cdnjs_Main extends Worpit_Cdnjs_Base_Plugin {
 			wp_enqueue_style( $insResourceName );
 		}
 	}
-	
-	
-	protected function checkUrlValid( $insUrl ) {
-		$oCurl = curl_init();
-		curl_setopt( $oCurl, CURLOPT_URL, $insUrl );
-		curl_setopt( $oCurl, CURLOPT_RETURNTRANSFER, 1 );
-		curl_setopt( $oCurl, CURLOPT_CONNECTTIMEOUT, 10 );
-		
-		$sContent = curl_exec( $oCurl );
-		$sHttpCode = curl_getinfo( $oCurl, CURLINFO_HTTP_CODE );
-		curl_close( $oCurl );
-		
-		return ( intval( $sHttpCode ) === 200 );
-	}
 
-	/**
-	 * Not currently used, but could be useful once we work out what way the JS should be included.
-	 * @param $insHandle	For example: 'prettify/prettify.css'
-	 */
-	protected function isRegistered( $insHandle ) {
+		/**
+		 * @param $sHandle
+		 * @return bool
+		 */
+	protected function isRegistered( $sHandle ) {
 		return (
-			wp_script_is( $insHandle, 'registered' ) ||
-			wp_script_is( $insHandle, 'queue' ) ||
-			wp_script_is( $insHandle, 'done' ) ||
-			wp_script_is( $insHandle, 'to_do' )
+			wp_script_is( $sHandle, 'registered' ) ||
+			wp_script_is( $sHandle, 'queue' ) ||
+			wp_script_is( $sHandle, 'done' ) ||
+			wp_script_is( $sHandle, 'to_do' )
 		);
 	}
 	
@@ -453,15 +426,7 @@ class ICWP_Cdnjs_Main extends Worpit_Cdnjs_Base_Plugin {
 		return $inaLinks;
 	}
 	
-	protected function deleteAllPluginDbOptions() {
-		
-	//	parent::deleteAllPluginDbOptions();
-		
-		if ( !current_user_can( 'manage_options' ) ) {
-			return;
-		}
-		
-	}
+	protected function deleteAllPluginDbOptions() { }
 	
 	public function onWpDeactivatePlugin() {
 		
@@ -469,11 +434,9 @@ class ICWP_Cdnjs_Main extends Worpit_Cdnjs_Base_Plugin {
 			$this->deleteAllPluginDbOptions();
 		}
 		
-	//	$this->deleteOption( 'includes' );
 		$this->deleteOption( 'current_plugin_version' );
 		$this->deleteOption( 'feedback_admin_notice' );
-		
-	}//onWpDeactivatePlugin
+	}
 	
 	public function onWpActivatePlugin() { }
 	

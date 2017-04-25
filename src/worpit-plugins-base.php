@@ -29,9 +29,9 @@ class Worpit_Cdnjs_Base_Plugin {
 
 	protected $m_aPluginMenu;
 
-	protected $m_aAllPluginOptions;
+	protected $aAllPluginOptions;
 	
-	protected $m_sPluginSlug;
+	protected $sPluginSlug;
 	
 	static protected $m_fUpdateSuccessTracker;
 	static protected $m_aFailedUpdateOptions;
@@ -53,11 +53,11 @@ class Worpit_Cdnjs_Base_Plugin {
 		self::$m_fUpdateSuccessTracker = true;
 		self::$m_aFailedUpdateOptions = array();
 
-		$this->m_sPluginSlug = 'base';
+		$this->sPluginSlug = 'base';
 	}
 
 	protected function getFullParentMenuId() {
-		return self::ParentMenuId .'-'. $this->m_sPluginSlug;
+		return self::ParentMenuId .'-'. $this->sPluginSlug;
 	}//getFullParentMenuId
 
 	protected function display( $insView, $inaData = array() ) {
@@ -167,7 +167,7 @@ class Worpit_Cdnjs_Base_Plugin {
 		$aData = array(
 				'plugin_url'	=> self::$PLUGIN_URL
 		);
-		$this->display( 'worpit_'.$this->m_sPluginSlug.'_index', $aData );
+		$this->display( 'worpit_'.$this->sPluginSlug.'_index', $aData );
 	}
 
 	/**
@@ -215,7 +215,7 @@ class Worpit_Cdnjs_Base_Plugin {
 		$sFullNotice = '
 			<div id="message" class="'.$insMessageClass.'">
 				<style>
-					#message form { margin: 0px; }
+					#message form { margin: 0; }
 				</style>
 				'.$insNotice.'
 			</div>
@@ -235,7 +235,7 @@ class Worpit_Cdnjs_Base_Plugin {
 				function redirect() {
 					window.location = "'.$insUrl.'";
 				}
-				var oTimer = setTimeout( "redirect()", "'.($innTimeout * 1000).'" );
+				setTimeout( "redirect()", "'.($innTimeout * 1000).'" );
 			</script>';
 	}
 
@@ -258,37 +258,45 @@ class Worpit_Cdnjs_Base_Plugin {
 
 	/**
 	 * Reads the current value for ALL plugin options from the WP options db.
-	 * 
+	 *
 	 * Assumes the standard plugin options array structure. Over-ride to change.
-	 * 
+	 *
 	 * NOT automatically executed on any hooks.
+	 *
+	 * @param array $inaExistingOptions
 	 */
 	protected function populateAllPluginOptions( &$inaExistingOptions = array() ) {
 
-		if ( empty($this->m_aAllPluginOptions) && !$this->initPluginOptions() ) {
-			return false;
-		}
-		self::PopulatePluginOptions( $this->m_aAllPluginOptions, $inaExistingOptions );
-
-	}//populateAllPluginOptions
-	
-	public static function PopulatePluginOptions( &$inaAllOptions, &$inaExistingOptions = array() ) {
-
-		if ( empty($inaAllOptions) ) {
-			return false;
-		}
-		foreach ( $inaAllOptions as &$aOptionsSection ) {
-			self::PopulatePluginOptionsSection( $aOptionsSection, $inaExistingOptions );
+		if ( !empty( $this->aAllPluginOptions ) || $this->initPluginOptions() ) {
+			self::PopulatePluginOptions( $this->aAllPluginOptions, $inaExistingOptions );
 		}
 	}
-	
-	public static function PopulatePluginOptionsSection( &$inaOptionsSection, &$inaExistingOptions = array() ) {
+
+	/**
+	 * @param array $inaAllOptions
+	 * @param array $inaExistingOptions
+	 */
+	public static function PopulatePluginOptions( &$inaAllOptions, &$inaExistingOptions = array() ) {
+
+		if ( !empty( $inaAllOptions ) ) {
+			foreach ( $inaAllOptions as &$aOptionsSection ) {
+				self::PopulatePluginOptionsSection( $aOptionsSection, $inaExistingOptions );
+			}
+		}
+	}
+
+	/**
+	 * @param array $aOptionsSection
+	 * @param array $inaExistingOptions
+	 * @return void
+	 */
+	public static function PopulatePluginOptionsSection( &$aOptionsSection, &$inaExistingOptions = array() ) {
 		
-		if ( empty($inaOptionsSection) ) {
-			return false;
+		if ( empty( $aOptionsSection ) ) {
+			return;
 		}
 		$aMoveToStart = array();
-		foreach ( $inaOptionsSection['section_options'] as $key => &$aOptionParams ) {
+		foreach ( $aOptionsSection[ 'section_options'] as $key => &$aOptionParams ) {
 			
 			list( $sOptionKey, $sOptionCurrent, $sOptionDefault ) = $aOptionParams;
 			if ( isset( $inaExistingOptions[ self::$OPTION_PREFIX.$sOptionKey ] ) ) {
@@ -306,10 +314,10 @@ class Worpit_Cdnjs_Base_Plugin {
 		$aMoveToStartElements = array();
 		if ( !empty($aMoveToStart) ) {
 			foreach( $aMoveToStart as $key ) {
-				$aMoveToStartElements[] = $inaOptionsSection['section_options'][$key];
-				unset( $inaOptionsSection['section_options'][$key] );
+				$aMoveToStartElements[] = $aOptionsSection[ 'section_options'][ $key];
+				unset( $aOptionsSection[ 'section_options'][ $key] );
 			}
- 			$inaOptionsSection['section_options'] = array_merge( $aMoveToStartElements, $inaOptionsSection['section_options'] );
+			$aOptionsSection[ 'section_options'] = array_merge( $aMoveToStartElements, $aOptionsSection[ 'section_options'] );
 		}
 	}
 
@@ -339,53 +347,57 @@ class Worpit_Cdnjs_Base_Plugin {
 			}
 			$this->updateOption( $sOptionKey, $sOptionValue );
 		}
-		
-		return true;
-	}//updatePluginOptionsFromSubmit
+	}
 	
 	protected function collateAllFormInputsForAllOptions($aAllOptions, $sInputSeparator = ',') {
 
-		if ( empty($aAllOptions) ) {
-			return '';
-		}
-		$iCount = 0;
-		foreach ( $aAllOptions as $aOptionsSection ) {
-			
-			if ( $iCount == 0 ) {
-				$sCollated = $this->collateAllFormInputsForOptionsSection($aOptionsSection, $sInputSeparator);
-			} else {
-				$sCollated .= $sInputSeparator.$this->collateAllFormInputsForOptionsSection($aOptionsSection, $sInputSeparator);
+		$sCollated = '';
+
+		if ( !empty( $aAllOptions ) ) {
+
+			$nCount = 0;
+			foreach ( $aAllOptions as $aOptionsSection ) {
+
+				if ( $nCount == 0 ) {
+					$sCollated = $this->collateAllFormInputsForOptionsSection($aOptionsSection, $sInputSeparator);
+				}
+				else {
+					$sCollated .= $sInputSeparator.$this->collateAllFormInputsForOptionsSection($aOptionsSection, $sInputSeparator);
+				}
+				$nCount++;
 			}
-			$iCount++;
 		}
 		return $sCollated;
 		
-	}//collateAllFormInputsAllOptions
+	}
 
 	/**
 	 * Returns a comma seperated list of all the options in a given options section.
 	 *
 	 * @param array $aOptionsSection
+	 * @param string $sInputSeparator
+	 * @return string
 	 */
 	protected function collateAllFormInputsForOptionsSection( $aOptionsSection, $sInputSeparator = ',' ) {
 
-		if ( empty($aOptionsSection) ) {
-			return '';
-		}
-		$iCount = 0;
-		foreach ( $aOptionsSection['section_options'] as $aOption ) {
+		$sCollated = '';
+		if ( !empty( $aOptionsSection ) ) {
 
-			list($sKey, $fill1, $fill2, $sType) =  $aOption;
-			
-			if ( $iCount == 0 ) {
-				$sCollated = $sType.':'.$sKey;
-			} else {
-				$sCollated .= $sInputSeparator.$sType.':'.$sKey;
+			$nCount = 0;
+			foreach ( $aOptionsSection['section_options'] as $aOption ) {
+
+				list($sKey, $fill1, $fill2, $sType) =  $aOption;
+
+				if ( $nCount == 0 ) {
+					$sCollated = $sType.':'.$sKey;
+				} else {
+					$sCollated .= $sInputSeparator.$sType.':'.$sKey;
+				}
+				$nCount++;
 			}
-			$iCount++;
 		}
 		return $sCollated;
-	}//collateAllFormInputsForOptionsSection
+	}
 
 	protected function isWorpitPluginAdminPage() {
 
@@ -403,11 +415,11 @@ class Worpit_Cdnjs_Base_Plugin {
 			return;
 		}
 		
-		if ( empty($this->m_aAllPluginOptions) && !$this->initPluginOptions() ) {
+		if ( empty($this->aAllPluginOptions) && !$this->initPluginOptions() ) {
 			return;
 		}
 		
-		foreach ( $this->m_aAllPluginOptions as &$aOptionsSection ) {
+		foreach ( $this->aAllPluginOptions as &$aOptionsSection ) {
 			foreach ( $aOptionsSection['section_options'] as &$aOptionParams ) {
 				if ( isset( $aOptionParams[0] ) ) {
 					$this->deleteOption($aOptionParams[0]);
