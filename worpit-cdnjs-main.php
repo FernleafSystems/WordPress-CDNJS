@@ -3,7 +3,7 @@
  * Plugin Name: CDNJS for WordPress
  * Plugin URI: http://icwp.io/6x
  * Description: Allows you to easily include Javascript and other resources from CDNJS.
- * Version: 1.3.2
+ * Version: 1.3.3
  * Author: iControlWP
  * Author URI: http://icwp.io/6x
 */
@@ -46,7 +46,7 @@ class ICWP_Cdnjs_Main extends Worpit_Cdnjs_Base_Plugin {
 	const OptionPrefix				= 'worpit_cdnjs_'; //ALL database options use this as the prefix.
 	const CDNJS_URL = 'http://api.cdnjs.com/libraries';
 
-	static public $VERSION			= '1.3.2'; //SHOULD BE UPDATED UPON EACH NEW RELEASE
+	static public $VERSION			= '1.3.3'; //SHOULD BE UPDATED UPON EACH NEW RELEASE
 	
 	static public $aWP_MAPPINGS;
 
